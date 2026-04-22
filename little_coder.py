@@ -638,7 +638,17 @@ def cmd_model(args: str, _state, config) -> bool:
         info(f"Current model:    {model}  (provider: {pname})")
         info("\nAvailable models by provider:")
         for pn, pdata in PROVIDERS.items():
-            ms = pdata.get("models", [])
+            ms = list(pdata.get("models", []))
+            # For vllm: query the server for loaded models
+            if pn == "vllm" and not ms:
+                import os as _os
+                from providers import list_vllm_models, get_api_key
+                vllm_url = (
+                    _os.environ.get("VLLM_BASE_URL")
+                    or config.get("vllm_base_url")
+                    or pdata.get("base_url", "http://localhost:8000/v1")
+                )
+                ms = list_vllm_models(vllm_url, get_api_key("vllm", config))
             if ms:
                 info(f"  {pn:12s}  " + ", ".join(ms[:4]) + ("..." if len(ms) > 4 else ""))
         info("\nFormat: 'provider/model' or just model name (auto-detected)")

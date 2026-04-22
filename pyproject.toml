@@ -22,6 +22,7 @@ vision = ["Pillow"]
 
 [project.scripts]
 little-coder = "little_coder:main"
+codo = "little_coder:main"
 
 [tool.setuptools]
 py-modules = [
@@ -31,10 +32,13 @@ py-modules = [
     "compaction",
     "config",
     "context",
+    "demo",
     "providers",
     "skills",
+    "status_line",
     "subagent",
+    "theme",
     "tool_registry",
     "tools",
 ]
-packages = ["mcp", "memory", "multi_agent", "plugin", "skill", "task", "voice", "checkpoint"]
+packages = ["checkpoint", "local", "mcp", "memory", "modular", "modular.video", "modular.voice", "multi_agent", "plugin", "skill", "task", "voice"]

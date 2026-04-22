@@ -21,6 +21,7 @@ DEFAULTS = {
     "thinking":         False,
     "thinking_budget":  10000,
     "custom_base_url":  "",       # for "custom" provider
+    "vllm_base_url":    "",       # for "vllm" provider
     "max_tool_output":  32000,
     "max_agent_depth":  3,
     "max_concurrent_agents": 3,
@@ -34,6 +35,7 @@ DEFAULTS = {
     # "qwen_api_key":      "..."
     # "zhipu_api_key":     "..."
     # "deepseek_api_key":  "..."
+    # "vllm_api_key":      "..."
 }
 
 

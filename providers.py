@@ -13,6 +13,7 @@ Supported providers:
   ollama     — Local Ollama (llama3.3, qwen2.5-coder, ...)
   lmstudio   — Local LM Studio (any loaded model)
   llamacpp   — Local llama.cpp llama-server (any loaded GGUF)
+  vllm       — vLLM OpenAI-compatible server (any loaded model)
   custom     — Any OpenAI-compatible endpoint
 
 Model string formats:
@@ -139,6 +140,13 @@ PROVIDERS: dict[str, dict] = {
         "api_key":    "none",
         "context_limit": 16384,   # match default launch script; override via LLAMACPP_BASE_URL server
         "models": [],             # dynamic, depends on which GGUF is loaded
+    },
+    "vllm": {
+        "type":       "openai",
+        "api_key_env": "VLLM_API_KEY",
+        "base_url":   "http://localhost:8000/v1",
+        "context_limit": 128000,
+        "models": [],   # dynamic, depends on which model is served
     },
     "custom": {
         "type":       "openai",
@@ -790,6 +798,12 @@ def stream(
                 or config.get("llamacpp_base_url")
                 or prov.get("base_url", "http://localhost:8888/v1")
             )
+        elif provider_name == "vllm":
+            base_url = (
+                _os.environ.get("VLLM_BASE_URL")
+                or config.get("vllm_base_url")
+                or prov.get("base_url", "http://localhost:8000/v1")
+            )
         else:
             base_url = prov.get("base_url", "https://api.openai.com/v1")
         yield from stream_openai_compat(
@@ -805,5 +819,19 @@ def list_ollama_models(base_url: str) -> list[str]:
             data = json.loads(resp.read().decode("utf-8"))
             # Ollama returns {"models": [{"name": "llama3:latest", ...}, ...]}
             return [m["name"] for m in data.get("models", [])]
+    except Exception:
+        return []
+
+
+def list_vllm_models(base_url: str, api_key: str = "") -> list[str]:
+    """Fetch available models from a vLLM server via /v1/models."""
+    try:
+        url = f"{base_url.rstrip('/')}/models"
+        req = urllib.request.Request(url, headers={"Content-Type": "application/json"})
+        if api_key:
+            req.add_header("Authorization", f"Bearer {api_key}")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return [m["id"] for m in data.get("data", [])]
     except Exception:
         return []

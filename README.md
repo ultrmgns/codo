@@ -77,6 +77,34 @@ python little_coder.py --model llamacpp/qwen3.6-35b-a3b
 
 Set `LLAMACPP_BASE_URL=http://localhost:8888/v1` if you run the server on a different host or port.
 
+### Option C — vLLM (remote or local OpenAI-compatible server)
+
+```bash
+# 1. Clone + install little-coder
+git clone https://github.com/itayinbarr/little-coder.git
+cd little-coder
+pip install -e .
+
+# 2. Configure your vLLM endpoint and API key
+python little_coder.py
+# Then in the REPL:
+/config vllm_base_url=http://your-server:port/v1
+/config vllm_api_key=your-key
+
+# 3. Set the model (use the name vLLM reports in /v1/models)
+/model vllm/your-model-name
+```
+
+You can also set these via environment variables:
+
+```bash
+export VLLM_BASE_URL=http://your-server:port/v1
+export VLLM_API_KEY=your-key
+python little_coder.py --model vllm/your-model-name
+```
+
+The `/model` command will auto-query your vLLM server to list available models.
+
 ---
 
 ## Supported models
